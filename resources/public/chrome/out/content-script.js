@@ -1,0 +1,2 @@
+var Ie=chrome.runtime.connect({name:":datalog-console.remote/content-script-port"});w(document.documentElement.getAttribute("__datalog-console-remote-installed__"))&&Ie.postMessage({":datalog-console.remote/db-detected":!0});ia(Ie,"onMessage").addListener(function(a){return w(ia(a,":datalog-console.client/devtool-message"))?window.postMessage(a,"*"):null});
+window.addEventListener("message",function(a){return w(a.source===window?ha(a,"data",":datalog-console.remote/remote-message"):!1)?Ie.postMessage(ia(a,"data")):null});
