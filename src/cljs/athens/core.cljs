@@ -18,7 +18,9 @@
     [goog.dom :refer [getElement]]
     [re-frame.core :as rf]
     [reagent.dom :as r-dom]
-    [stylefy.core :as stylefy]))
+    [stylefy.core :as stylefy]
+    [cljs.reader]
+    [goog.object :as gobj]))
 
 
 (goog-define SENTRY_DSN "")
@@ -88,10 +90,34 @@
                                          [x y] (.getSize ^js sender)]
                                      (rf/dispatch [:window/set-size [x y]])))))))
 
+(defn init-datalog-console
+  []
+  (when (and (util/electron?) config/debug?)
+    (js/document.documentElement.setAttribute "__datalog-console-remote-installed__" true)
+    (let [conn athens.db/dsdb]
+      (.addEventListener js/window "message"
+                         (fn [event]
+                           (when-let [devtool-message (gobj/getValueByKeys event "data" ":datalog-console.client/devtool-message")]
+                             (let [msg-type (:type (cljs.reader/read-string devtool-message))]
+                               (case msg-type
+
+                                 :datalog-console.client/request-whole-database-as-string
+                                 (.postMessage js/window #js {":datalog-console.remote/remote-message" (pr-str @conn)} "*")
+
+                                 nil))))))
+    (let [remote (.. (js/require "electron") -remote)
+          path (js/require "path")
+          extension-path (.join path js/__dirname "chrome")
+          session (.. (.. remote -session) -defaultSession)]
+      (.loadExtension session extension-path #js {:allowFileAccess true}))))
+
+
+
 
 (defn init
   []
   (set-global-alert!)
+  (init-datalog-console)
   (init-sentry)
   (init-ipcRenderer)
   (init-windowsize)
