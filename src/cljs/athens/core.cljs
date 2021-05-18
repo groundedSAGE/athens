@@ -6,6 +6,7 @@
     [athens.coeffects]
     [athens.components]
     [athens.config :as config]
+    [athens.db :refer [dsdb]]
     [athens.effects]
     [athens.electron]
     [athens.events]
@@ -15,7 +16,9 @@
     [athens.subs]
     [athens.util :as util]
     [athens.views :as views]
+    [cljs.reader :refer [read-string]]
     [goog.dom :refer [getElement]]
+    [goog.object :as gobj]
     [re-frame.core :as rf]
     [reagent.dom :as r-dom]
     [stylefy.core :as stylefy]
@@ -90,40 +93,48 @@
                                          [x y] (.getSize ^js sender)]
                                      (rf/dispatch [:window/set-size [x y]])))))))
 
+
 (defn init-datalog-console
   []
-  (when (and (util/electron?) config/debug?)
+  (when config/debug?
     (js/document.documentElement.setAttribute "__datalog-console-remote-installed__" true)
-    (let [conn athens.db/dsdb]
+    (let [conn dsdb]
       (.addEventListener js/window "message"
                          (fn [event]
                            (when-let [devtool-message (gobj/getValueByKeys event "data" ":datalog-console.client/devtool-message")]
-                             (let [msg-type (:type (cljs.reader/read-string devtool-message))]
+                             (let [msg-type (:type (read-string devtool-message))]
                                (case msg-type
 
                                  :datalog-console.client/request-whole-database-as-string
                                  (.postMessage js/window #js {":datalog-console.remote/remote-message" (pr-str @conn)} "*")
 
-                                 nil))))))
+                                 nil))))))))
+
+
+(defn install-datalog-console-extension []
+  ;; Currently this installs the extension manually loading.
+  ;; This can be made automatic with the `electron-devtools-install` but this currently throws an error.
+  (when (and (util/electron?) config/debug?)
     (let [remote (.. (js/require "electron") -remote)
           path (js/require "path")
           extension-path (.join path js/__dirname "chrome")
+          ;; installer (js/require "electron-devtools-installer") ; This require causes an error
           session (.. (.. remote -session) -defaultSession)]
       (.loadExtension session extension-path #js {:allowFileAccess true}))))
-
 
 
 
 (defn init
   []
   (set-global-alert!)
-  (init-datalog-console)
   (init-sentry)
   (init-ipcRenderer)
   (init-windowsize)
   (style/init)
   (stylefy/tag "body" style/app-styles)
   (listeners/init)
+  (init-datalog-console)
+  (install-datalog-console-extension)
   (if (util/electron?)
     (rf/dispatch-sync [:boot/desktop])
     (rf/dispatch-sync [:boot/web]))
