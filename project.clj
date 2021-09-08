@@ -9,35 +9,13 @@
             :distribution :repo
             :comments "same as Clojure"}
 
-  :dependencies [[org.clojure/clojure "1.10.3"]
-                 [org.clojure/clojurescript "1.10.866"
-                  :exclusions [com.google.javascript/closure-compiler-unshaded
-                               org.clojure/google-closure-library
-                               org.clojure/google-closure-library-third-party]]
-                 [thheller/shadow-cljs "2.11.23"]
-                 [reagent "1.0.0"]
-                 [re-frame "1.2.0"]
-                 [datascript "1.1.0"]
-                 [datascript-transit "0.3.0"]
-                 [denistakeda/posh "0.5.8"]
-                 [cljs-http "0.1.46"]
-                 [day8.re-frame/async-flow-fx "0.2.0"]
-                 [metosin/reitit "0.5.13"]
-                 [metosin/komponentit "0.3.10"]
-                 [instaparse "1.4.10"]
-                 [devcards "0.2.7"]
-                 [borkdude/sci "0.2.5"]
-                 [garden "1.3.10"]
-                 [stylefy "3.0.0"]
-                 [stylefy/reagent "3.0.0"]
-                 [tick "0.4.26-alpha"]
-                 [com.rpl/specter "1.1.3"]
-                 [com.taoensso/sente "1.16.2"]
-                 [datsync "0.0.1-alpha2-SNAPSHOT"]]
-
   :plugins [[lein-auto "0.1.3"]
             [lein-shell "0.5.0"]
-            [lein-ancient "0.7.0"]]
+            [lein-ancient "0.7.0"]
+            [lein-tools-deps "0.4.5"]]
+  
+  :middleware [lein-tools-deps.plugin/resolve-dependencies-with-deps-edn]
+  :lein-tools-deps/config {:config-files [:install :user :project]}
 
   :min-lein-version "2.5.3"
 
