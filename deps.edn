@@ -5,7 +5,7 @@
                                                 org.clojure/google-closure-library-third-party]}
         thheller/shadow-cljs {:mvn/version "2.11.23"}
         io.homebase/datalog-console {:git/url "https://github.com/groundedSAGE/datalog-console.git"
-                                     :sha "0d9386f2f82be4dc7db4a6ce2227915ccc52e328"}
+                                     :sha "a74bbffda45140894698d43d1d8151134f8329b0" #_"6e1fb1daca9725553319f916b7194e20d4a9d699"}
         reagent {:mvn/version "1.0.0"}
         re-frame {:mvn/version "1.2.0"}
         datascript {:mvn/version "1.1.0"}

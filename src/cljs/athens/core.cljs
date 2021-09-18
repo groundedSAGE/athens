@@ -119,7 +119,8 @@
   (stylefy/tag "body" style/app-styles)
   (listeners/init)
   (js/console.log "enabling console")
-  (datalog-console/enable! {:conn dsdb})
+  (datalog-console/enable! {:conn dsdb
+                            :secure? true})
   ;; (init-datalog-console)
   (if (util/electron?)
     (rf/dispatch-sync [:boot/desktop])
